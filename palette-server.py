@@ -70,10 +70,10 @@ def app(environ, start_response):
 	
     def open_image(URL):
 	
-		filename = cStringIO.StringIO(urllib.urlopen(URL).read())
+	    filename = cStringIO.StringIO(urllib.urlopen(URL).read())
 	    img = Image.open(filename)
 	
-		return img
+	    return img
 
     status = '200 OK'
     rsp = {}
