@@ -3,17 +3,16 @@ palette-server
 
 palette-server is a small little WSGI-compliant httpony to extract colours from an image.
 
-How to run it
+locally with Gunicorn
 --
-
-I don't know yet. In the meantime:
 
 	$> cd palette-server/bin
 	$> gunicorn palette-server:app
 
-	$>curl  'http://localhost:8000?path=/Users/asc/Desktop/cat.jpg' | python -m json.tool
+	$>curl  'http://localhost:8000?path=http://mysite.com/cat.jpg' | python -m json.tool
 
 	{
+		"shannon": 3.1487854270660875,
 		"reference-closest": "css3",
 		"average": {
 			"closest": "#808080", 
@@ -44,6 +43,25 @@ I don't know yet. In the meantime:
 		"stat": "ok"
 	}
 
+on heroku
+--
+
+You can run this locally with foreman to test before pushing to heroku
+
+	$ virtualenv venv --distribute
+	$ source venv/bin/activate
+	$ pip install -r requirements.txt
+	$ foreman start
+	
+Once tested, use the Heroku gem to create a new app
+
+	$ heroku create
+	$ git push heroku master
+	$ curl 'http://your-heroku-app.herokuapp.com/?path="http://mysite.com/cat.jpg" | python -m json.tool
+	
+This should result in the same output as above.
+
+
 To do
 --
 
@@ -55,13 +73,12 @@ To do
   palette. Currently the server is hard-coded to "snap to grid" using the CSS3
   palette.
 
-* Add the ability to pass a URL (which will mean patching the RoyGBiv
-constructor to accept a PIL.Image object rather than a filename) ... maybe
-
 * A proper `setup.py` script for installing dependencies (see below).
 
 * A proper `init.d` script (or equivalent) for starting and stopping the
   palette-server.
+
+* Shouldn't have to load the image twice for palette AND shannon calc
 
 Dependencies
 --
