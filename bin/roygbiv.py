@@ -30,12 +30,11 @@ class Roygbiv(object):
 
 	__img = None
 	
-	def __init__(self, URL):
-		if not URL:
+	def __init__(self, img):
+		if not img:
 			raise Exception('Must provide filename in constructor')
 
-		filename = cStringIO.StringIO(urllib.urlopen(URL).read())
-		self.__img = Image.open(filename)
+		self.__img = img
 		
 		# make sure image is RGB
 		if self.__img.mode != 'RGB':

@@ -51,9 +51,9 @@ def app(environ, start_response):
             'closest': web_closest,
             }
 
-    def get_palette(path):
+    def get_palette(URL):
 
-        roy = roygbiv.Roygbiv(path)
+        roy = roygbiv.Roygbiv(URL)
         average = roy.get_average_hex()
         palette = roy.get_palette_hex()
 
@@ -62,13 +62,18 @@ def app(environ, start_response):
 
         return { 'reference-closest': 'css3', 'average': average, 'palette': palette }
 
-    def get_shannon(path):
+    def get_shannon(img):
 
-	    filename = cStringIO.StringIO(urllib.urlopen(path).read())
-	    img = Image.open(filename)
 	    shan = shannon.image_entropy(img)
 	
 	    return shan
+	
+    def open_image(URL):
+	
+		filename = cStringIO.StringIO(urllib.urlopen(URL).read())
+	    img = Image.open(filename)
+	
+		return img
 
     status = '200 OK'
     rsp = {}
@@ -85,9 +90,10 @@ def app(environ, start_response):
         path = path[0]
 
         try:
-            rsp = get_palette(path)
+            data = open_image(path)
+            rsp = get_palette(data)
             rsp['stat']  = 'ok'
-            rsp['shannon'] = get_shannon(path)		
+            rsp['shannon'] = get_shannon(data)		
         except Exception, e:
             logging.error(e)
             rsp = {'stat': 'error', 'error': "failed to process image: %s" % e}
