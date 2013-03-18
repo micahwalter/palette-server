@@ -1,3 +1,4 @@
+import urllib, cStringIO
 from PIL import Image
 from PIL import ImageChops
 from collections import namedtuple
@@ -29,10 +30,11 @@ class Roygbiv(object):
 
 	__img = None
 	
-	def __init__(self, filename):
-		if not filename:
+	def __init__(self, URL):
+		if not URL:
 			raise Exception('Must provide filename in constructor')
 
+		filename = cStringIO.StringIO(urllib.urlopen(URL).read())
 		self.__img = Image.open(filename)
 		
 		# make sure image is RGB

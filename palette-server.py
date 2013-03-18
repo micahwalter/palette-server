@@ -1,3 +1,4 @@
+import urllib, cStringIO
 from bin import roygbiv
 import webcolors
 from bin import shannon
@@ -63,7 +64,8 @@ def app(environ, start_response):
 
     def get_shannon(path):
 
-	    img = Image.open(path)
+	    filename = cStringIO.StringIO(urllib.urlopen(path).read())
+	    img = Image.open(filename)
 	    shan = shannon.image_entropy(img)
 	
 	    return shan
