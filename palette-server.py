@@ -1,6 +1,6 @@
-import roygbiv
+from bin import roygbiv
 import webcolors
-import shannon
+from bin import shannon
 import json
 import cgi
 import Image
@@ -63,10 +63,10 @@ def app(environ, start_response):
 
     def get_shannon(path):
 
-	img = Image.open(path)
-	shan = shannon.image_entropy(img)
+	    img = Image.open(path)
+	    shan = shannon.image_entropy(img)
 	
-	return shan
+	    return shan
 
     status = '200 OK'
     rsp = {}

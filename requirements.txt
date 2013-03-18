@@ -1,0 +1,11 @@
+Jinja2==2.6
+PIL==1.1.7
+Werkzeug==0.8.3
+colormath==1.0.8
+distribute==0.6.31
+gunicorn==0.17.2
+numpy==1.7.0
+simplejson==3.1.0
+webcolors==1.4
+wsgiref==0.1.2
+

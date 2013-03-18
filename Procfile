@@ -1,0 +1,1 @@
+web: gunicorn palette-server:app -w 3
