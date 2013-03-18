@@ -43,6 +43,25 @@ locally with Gunicorn
 		"stat": "ok"
 	}
 
+on heroku
+--
+
+You can run this locally with foreman to test before pushing to heroku
+
+	$ virtualenv venv --distribute
+	$ source venv/bin/activate
+	$ pip install -r requirements.txt
+	$ foreman start
+	
+Once tested, use the Heroku gem to create a new app
+
+	$ heroku create
+	$ git push heroku master
+	$ curl 'http://your-heroku-app.herokuapp.com/?path="http://mysite.com/cat.jpg" | python -m json.tool
+	
+This should result in the same output as above.
+
+
 To do
 --
 
