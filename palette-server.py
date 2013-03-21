@@ -87,7 +87,7 @@ def app(environ, start_response):
 	
 	    return img
 
-
+    status = '200 OK'
     body = ''
     rsp = {}
     try:
@@ -97,6 +97,7 @@ def app(environ, start_response):
 		
     if request_body_size!=0:
         body = environ['wsgi.input'].read(request_body_size)
+
         return ['thanks']
     else:
         params = cgi.parse_qs(environ.get('QUERY_STRING', ''))
@@ -118,16 +119,16 @@ def app(environ, start_response):
         if rsp['stat'] != 'ok':
             status = "500 SERVER ERROR"
 
-            rsp = json.dumps(rsp)
+        rsp = json.dumps(rsp)
 
-            logging.debug("%s : %s" % (path, status))
+        logging.debug("%s : %s" % (path, status))
 
-            start_response(status, [
-                    ("Content-Type", "text/javascript"),
-                    ("Content-Length", str(len(rsp)))
-                    ])
+        start_response(status, [
+                ("Content-Type", "text/javascript"),
+                ("Content-Length", str(len(rsp)))
+                ])
 
-            return iter([rsp])
+        return iter([rsp])
 			
 
 
