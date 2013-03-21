@@ -104,7 +104,7 @@ def app(environ, start_response):
         path = params.get('path', None)
 		
         if not path:
-            return ['post stuff']
+            return 'post stuff'
         else:
             path = path[0]
             try:
