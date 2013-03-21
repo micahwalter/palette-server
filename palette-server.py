@@ -8,6 +8,18 @@ import Image
 import logging
 logging.basicConfig(level=logging.DEBUG)
 
+html = """
+<html>
+<body>
+	<form id="mainform" enctype="multipart/form-data" action="/" method="post" >
+	<label for="imageupload">Image file:</label>
+	<input name="imageupload" id="imageupload" type="file" /><br />
+	<input name="submit" id="submit" type="submit" value="submit"> 
+	</form>
+</body>
+</html>
+"""
+
 def app(environ, start_response):
 
     # https://bitbucket.org/ubernostrum/webcolors/src/b93975d4507fbf0a500656cb475dbd8ddae7a549/webcolors.py?at=default#cl-191
@@ -75,40 +87,47 @@ def app(environ, start_response):
 	
 	    return img
 
-    status = '200 OK'
+
+    body = ''
     rsp = {}
-
-    params = cgi.parse_qs(environ.get('QUERY_STRING', ''))
-
-    path = params.get('path', None)
-
-    if not path:
-        rsp = {'stat': 'error', 'error': 'missing image'}
-
+    try:
+		request_body_size = int(environ.get('CONTENT_LENGTH', 0))
+    except (ValueError):
+		request_body_size = 0
+		
+    if request_body_size!=0:
+        body = environ['wsgi.input'].read(request_body_size)
+        return ['thanks']
     else:
+        params = cgi.parse_qs(environ.get('QUERY_STRING', ''))
+        path = params.get('path', None)
+		
+        if not path:
+            return [html]
+        else:
+            path = path[0]
+            try:
+                data = open_image(path)
+                rsp = get_palette(data)
+                rsp['stat']  = 'ok'
+                rsp['shannon'] = get_shannon(data)
+            except Exception, e:
+                logging.error(e)
+                rsp = {'stat': 'error', 'error': "failed to process image: %s" % e}
+			        
+        if rsp['stat'] != 'ok':
+            status = "500 SERVER ERROR"
 
-        path = path[0]
+            rsp = json.dumps(rsp)
 
-        try:
-            data = open_image(path)
-            rsp = get_palette(data)
-            rsp['stat']  = 'ok'
-            rsp['shannon'] = get_shannon(data)		
-        except Exception, e:
-            logging.error(e)
-            rsp = {'stat': 'error', 'error': "failed to process image: %s" % e}
-        
-    if rsp['stat'] != 'ok':
-        status = "500 SERVER ERROR"
+            logging.debug("%s : %s" % (path, status))
 
-    rsp = json.dumps(rsp)
+            start_response(status, [
+                    ("Content-Type", "text/javascript"),
+                    ("Content-Length", str(len(rsp)))
+                    ])
 
-    logging.debug("%s : %s" % (path, status))
+            return iter([rsp])
+			
 
-    start_response(status, [
-            ("Content-Type", "text/javascript"),
-            ("Content-Length", str(len(rsp)))
-            ])
-
-    return iter([rsp])
 
