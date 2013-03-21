@@ -104,7 +104,12 @@ def app(environ, start_response):
         path = params.get('path', None)
 		
         if not path:
-            return 'post stuff'
+            start_response(status, [
+                    ("Content-Type", "text/html"),
+                    ("Content-Length", str(len(html)))
+                    ])
+	        
+            return iter([html])
         else:
             path = path[0]
             try:
