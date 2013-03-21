@@ -6,8 +6,7 @@ import json
 import cgi
 import Image
 import logging
-from StringIO import StringIO
-from urlparse import parse_qs
+from cStringIO import StringIO
 logging.basicConfig(level=logging.DEBUG)
 
 html = """
@@ -105,21 +104,29 @@ def app(environ, start_response):
 		request_body_size = 0
 		
     if request_body_size!=0:
-        request_body = environ['wsgi.input'].read(request_body_size)
-        d = parse_qs(request_body)
-        image = d.get('imageupload', [''])[0]
+        form = cgi.FieldStorage(fp=environ['wsgi.input'], 
+		                        environ=environ)
+        fileitem = form['imageupload']
+        
         try:
-            rsp = get_palette(image)
-            rsp['stat'] = 'ok'
+            im = open_data(fileitem.file)
+            rsp = get_palette(im)
         except Exception, e:
             logging.error(e)
             rsp = {'stat': 'error', 'error': "failed to process image: %s" % e}
+	
+        if rsp['stat'] != 'ok':
+            status = "500 SERVER ERROR"
+
         rsp = json.dumps(rsp)
+
+        #logging.debug("%s : %s" % (path, status))
+
         start_response(status, [
-                 ("Content-Type", "text/javascript"),
-                 ("Content-Length", str(len(rsp)))
-                 ])
-        	
+                    ("Content-Type", "text/javascript"),
+                    ("Content-Length", str(len(rsp)))
+                    ])
+
         return iter([rsp])
         
 
