@@ -111,6 +111,8 @@ def app(environ, start_response):
         try:
             im = open_data(fileitem.file)
             rsp = get_palette(im)
+            rsp['stat']  = 'ok'
+            rsp['shannon'] = get_shannon(im)
         except Exception, e:
             logging.error(e)
             rsp = {'stat': 'error', 'error': "failed to process image: %s" % e}
