@@ -1,1 +1,1 @@
-web: gunicorn palette-server:app -w 3
+web: newrelic-admin run-program gunicorn palette-server:app -w 3
