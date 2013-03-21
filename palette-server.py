@@ -6,6 +6,8 @@ import json
 import cgi
 import Image
 import logging
+from StringIO import StringIO
+from urlparse import parse_qs
 logging.basicConfig(level=logging.DEBUG)
 
 html = """
@@ -86,6 +88,13 @@ def app(environ, start_response):
 	    img = Image.open(filename)
 	
 	    return img
+	
+    def open_data(data):
+	
+	    img = Image.open(data)
+	
+	    return img
+	
 
     status = '200 OK'
     body = ''
@@ -96,9 +105,24 @@ def app(environ, start_response):
 		request_body_size = 0
 		
     if request_body_size!=0:
-        body = environ['wsgi.input'].read(request_body_size)
+        request_body = environ['wsgi.input'].read(request_body_size)
+        d = parse_qs(request_body)
+        image = d.get('imageupload', [''])[0]
+        try:
+            rsp = get_palette(image)
+            rsp['stat'] = 'ok'
+        except Exception, e:
+            logging.error(e)
+            rsp = {'stat': 'error', 'error': "failed to process image: %s" % e}
+        rsp = json.dumps(rsp)
+        start_response(status, [
+                 ("Content-Type", "text/javascript"),
+                 ("Content-Length", str(len(rsp)))
+                 ])
+        	
+        return iter([rsp])
+        
 
-        return ['thanks']
     else:
         params = cgi.parse_qs(environ.get('QUERY_STRING', ''))
         path = params.get('path', None)
